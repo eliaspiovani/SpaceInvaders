@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class LaserBlastController : MonoBehaviour
 {
@@ -9,48 +7,48 @@ public class LaserBlastController : MonoBehaviour
     GameController gC => GameObject.Find("GameController").GetComponent<GameController>();
     GameObject player => GameObject.Find("Spaceship");
 
-    //public GameObject asteroidExplosion;
-
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
     void LateUpdate()
     {
+        // make a local copy of the tranform
         Vector3 pos = transform.localPosition;
 
-        //pos += new Vector3(Time.deltaTime * speed, 0.0f, 0.0f);
+        // calculates the new position
         pos += transform.TransformDirection(Vector3.right) * Time.deltaTime * speed;
 
+        // if laser is out of the screen, destroy it
         if (pos.x > gC.horizontal_limits + 1.0f || pos.x < -gC.horizontal_limits - 2.0f) {
             DestroyLaserBean();
         }
 
+        // update position
         transform.position = pos;
     }
 
     private void OnTriggerEnter(Collider other)
     {
+        // if player is in the scene
         if (player != null)
         {
+
             PlayerController pC = player.GetComponent<PlayerController>();
+
+            // if asteroid was hit, get the score and destroy both the asteroid and the laser
             if (other.gameObject.CompareTag("Asteroid"))
             {
-                //Debug.Log("hit asteroid");
                 AsteroidController aC = other.GetComponent<AsteroidController>();
                 pC.score += aC.score;
                 aC.DestroyAsteroid();
                 DestroyLaserBean();
             }
+
+            // if enemy was hit, subtract one life of it
             else if (other.gameObject.CompareTag("Enemy"))
             {
                 EnemyController eC = other.GetComponent<EnemyController>();
                 //Debug.Log("hit enemy");
                 eC.life--;
 
+                // if enemy is dead, get the score and destroy enemy
                 if (eC.life == 0)
                 {
                     //increase points
@@ -66,7 +64,6 @@ public class LaserBlastController : MonoBehaviour
 
     private void DestroyLaserBean()
     {
-        //if (sC.numberOfShoots > 0) sC.numberOfShoots--;
         Destroy(gameObject);
     }
 }

@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
@@ -29,15 +27,7 @@ public class PlayerController : MonoBehaviour
     public float health = 1.0f;
 
     bool dead = false;
-    //BoxCollider bxCol => GetComponent<BoxCollider>();
-
-    // Start is called before the first frame update
-    void Start()
-    {
-
-    }
-
-    // Update is called once per frame
+    
     void Update()
     {
         // Accelerate the object according to the pressed key
@@ -54,6 +44,7 @@ public class PlayerController : MonoBehaviour
         if (Input.GetKeyDown("space") && !dead)
         {
             Shoot();
+            // if laser is not the single one, subtract the number of ammo, if the number is zero, return to the single shot laser
             if (laserType != ITEMS._1LASER)
             {
                 maxShoots--;
@@ -64,6 +55,7 @@ public class PlayerController : MonoBehaviour
             }
         }
 
+        // if the player is going backwards, stop engines fire
         if (acc_horizontal < 0)
         {
             foreach (var pS in pSs)
@@ -82,20 +74,25 @@ public class PlayerController : MonoBehaviour
 
     private void LateUpdate()
     {
+
+        // make a local copy of the tranform
         Vector3 pos = transform.position;
 
+        // calculates the new position
         pos += new Vector3(acc_horizontal, 0.0f,  acc_vertical);
 
+        // avoid player going out of screen
         pos.z = Mathf.Clamp(pos.z, -gC.vertical_limits, gC.vertical_limits);
         pos.x = Mathf.Clamp(pos.x, -gC.horizontal_limits, gC.horizontal_limits);
 
-
+        // update position
         transform.position = pos;
 
     }
 
     private void Shoot()
     {
+        // shoot lasers according to the type active 
         switch (laserType)
         {
             case ITEMS._1LASER:
@@ -112,11 +109,11 @@ public class PlayerController : MonoBehaviour
                 break;
         }
 
-        //numberOfShoots++;
     }
 
     private void OnTriggerEnter(Collider other)
     {
+        // if player hits not a item
         if (!other.CompareTag("Item"))
         {
             if (other.CompareTag("Asteroid"))
@@ -132,6 +129,7 @@ public class PlayerController : MonoBehaviour
                 Destroy(other.gameObject);
             }
 
+            // subtract health, if it is zero, creates an explosion and deactive player from scene
             health -= 0.15f;
             if (health <= 0.0f)
             {
@@ -140,8 +138,9 @@ public class PlayerController : MonoBehaviour
                 Instantiate(playerExplosion, transform.position, Quaternion.identity);
                 this.gameObject.SetActive(false);
             }
-            //else Debug.Log("Got hit");
-        } else
+        }
+        // if it hits an item, verifies what item it is and update status according to the item
+        else
         {
             ItemController iT = other.gameObject.GetComponent<ItemController>();
             switch (iT.itemType)
@@ -162,6 +161,7 @@ public class PlayerController : MonoBehaviour
                     break;
                 case ITEMS._SHIELD:
                     GameObject shieldGO = GameObject.FindWithTag("Shield");
+                    // if shield is already being using, deletes it and creates a new one with the timer reseted
                     if (shieldGO != null) Destroy(shieldGO);
                     Instantiate(shield, transform);
                     break;

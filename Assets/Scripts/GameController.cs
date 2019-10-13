@@ -1,5 +1,4 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -34,6 +33,7 @@ public class GameController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        // if escape is pressed, open the menu or close it
         if (Input.GetKeyDown("escape"))
         {
             if (Time.timeScale > 0)
@@ -46,27 +46,28 @@ public class GameController : MonoBehaviour
             }
         }
 
+        // updates the values in the UI
         scoreValue.text = pC.score.ToString();
         waveText.text = wave.ToString();
 
+        // if the player is alive
         if (pC.health > 0)
         {
-            UpdateHealthOnScreen();
-
+            // if the laser type is not the single one, update the value with the number of shoots left
             if (pC.laserType != PlayerController.ITEMS._1LASER) laserShootsValue.text = pC.maxShoots.ToString();
+            // if it is, print the infinity symbol
             else laserShootsValue.text = "∞";
 
+            // if the last wave has ended, create another one, with enemies spawning a little bit faster than the last one
             if (createNewWave)
             {
                 instanciateEnemies = CreateWaves(spawnSpeed * (20.0f/20.0f+wave));
                 StartCoroutine(instanciateEnemies);
-                //createNewWave = false;
             }
         }
+        // if the player is dead, stop wave, wait until return is pressed
         else
         {
-            UpdateHealthOnScreen();
-
             StopCoroutine(instanciateEnemies);
             wave = 1;
             restartText.gameObject.SetActive(true);
@@ -81,13 +82,12 @@ public class GameController : MonoBehaviour
 
             }
         }
-    }
 
-    void UpdateHealthOnScreen()
-    {
+        // update health on screen
         healthValue.text = pC.health.ToString("0%");
     }
 
+    // put all asteroid in scene out of screen
     void ResetAsteroids()
     {
         foreach (var asteroid in GameObject.FindGameObjectsWithTag("Asteroid"))
@@ -98,16 +98,18 @@ public class GameController : MonoBehaviour
 
     IEnumerator CreateWaves(float wait)
     {
-        Debug.Log("StartedCoroutine");
         createNewWave = false;
         for (int i = 0; i < numberOfEnemies; i++)
         {
-            Instantiate(enemies[Random.Range(0, wave%5)], new Vector3(horizontal_limits, 0.0f, Random.Range(-vertical_limits, vertical_limits)), Quaternion.Euler(0.0f, Random.Range(160.0f, 200.0f), 0.0f));
+            Instantiate(enemies[Random.Range(0, wave%5)],
+                new Vector3(horizontal_limits, 0.0f,
+                Random.Range(-vertical_limits, vertical_limits)),
+                Quaternion.Euler(0.0f,
+                Random.Range(160.0f, 200.0f), 0.0f));
 
             yield return new WaitForSeconds(wait);
         }
         wave++;
-        Debug.Log("Finished coroutine");
         createNewWave = true;
     }
 

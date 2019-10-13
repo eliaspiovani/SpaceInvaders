@@ -1,5 +1,4 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class ShieldController : LaserBlastController
@@ -18,6 +17,7 @@ public class ShieldController : LaserBlastController
         transform.Rotate(Vector3.right, 33.0f);
     }
 
+    // if shield collides with something, destroy the other object
     private void OnTriggerEnter(Collider other)
     {
         if (other.gameObject.CompareTag("Asteroid"))

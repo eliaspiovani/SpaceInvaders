@@ -1,5 +1,4 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class EnemyController : MonoBehaviour
@@ -27,22 +26,23 @@ public class EnemyController : MonoBehaviour
     BoxCollider bxCol => GetComponent<BoxCollider>();
 
     bool shootAgain = true;
-    // Start is called before the first frame update
+
     void Start()
     {
+        // get the explosion for the enemies in the game controller script
         explosion = gC.enemyExplosion;
     }
 
-    // Update is called once per frame
     void Update()
     {
-        // Accelerate the object according to the pressed key
+        // Accelerate the object according to the speed
         acc_horizontal = -Time.deltaTime * speed;
 
         if (numberOfShoots < (maxShoots * laserPoints.Length) && shootAgain)
         {
             Shoot();
             shootAgain = false;
+            // delay between shoots
             StartCoroutine(ShootDelay());
         }
 
@@ -56,31 +56,34 @@ public class EnemyController : MonoBehaviour
 
     private void LateUpdate()
     {
+        // make a local copy of the tranform
         Vector3 pos = transform.position;
 
+        // calculates the new position
         pos += transform.TransformDirection(-Vector3.right) * acc_horizontal;
 
+        // if position is out of the bounds of the screen, destroy the object
         if (pos.x < -gC.horizontal_limits - 2.0f || pos.z < -gC.vertical_limits - 2.0f || pos.z > gC.vertical_limits + 2.0f)
         {
             Destroy(gameObject);
         }
 
-
+        // if it is a enemey that follows the player, player exists in the scene and position is greater than the position of the player, rotates it towards the player
         if (player != null && followPlayer && pos.x > (player.transform.position.x + 4.0f))
         {
             Vector3 playerDir = (player.transform.position - pos).normalized;
             float angle = Vector3.SignedAngle(-Vector3.right, playerDir, Vector3.up);
-            //Debug.Log(angle);
             transform.rotation = Quaternion.Euler(0.0f, 180.0f + angle, 0.0f);
-            //transform.Rotate();
         }
 
+        // update the position of the object
         transform.position = pos;
 
     }
 
     private void Shoot()
     {
+        // for all laser canons in the spaceshop, create a laser bean
         foreach (var laserPoint in laserPoints)
         {
             Instantiate(laser, laserPoint.transform.position, laserPoint.transform.rotation);
@@ -91,6 +94,7 @@ public class EnemyController : MonoBehaviour
 
     public void DestroyEnemy()
     {
+        // if the enemy dies, create an explosion
         Instantiate(explosion, transform.position, Quaternion.identity);
         Destroy(gameObject);
     }

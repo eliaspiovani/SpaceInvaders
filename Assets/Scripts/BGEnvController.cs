@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class BGEnvController : MonoBehaviour
 {
@@ -15,19 +13,15 @@ public class BGEnvController : MonoBehaviour
     public Vector3 axis;
     bool changeMaterialColor = false;
 
-    // Start is called before the first frame update
-    void Start()
-    {
-
-    }
-
-    // Update is called once per frame
     void LateUpdate()
     {
+        // make a local copy of the tranform
         Vector3 pos = transform.position;
 
+        // calculates the new position
         pos += Vector3.right * Time.deltaTime * -speed;
 
+        // position is out of the bounds of the screen, restart it in a random position, speed, scale, rotation and color
         if (pos.x < -gC.horizontal_limits - 6.0f)
         {
             pos.x = 20;
@@ -38,9 +32,10 @@ public class BGEnvController : MonoBehaviour
             if (changeMaterialColor) rend.material.color = new Color(Random.value, Random.value, Random.value);
         }
 
+        // update the position of the object
         transform.position = pos;
 
-        //transform.Rotate(Vector3.up, rotSpeed);
+
         rotateObj.transform.Rotate(axis, rotSpeed);
     }
 }
